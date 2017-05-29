@@ -1,0 +1,39 @@
+
+
+import numpy as np
+import tensorflow as tf
+from scipy import ndimage
+from vgg16 import VGG_ILSVRC_16_layers
+
+def load_images(*paths):
+    
+    imgs = []
+    for path in paths:
+        img = ndimage.imread(path, mode="RGB").astype(float)
+        imgs.append(img)
+    return imgs
+
+
+img1 = utils.load_image("img-airplane-224x224.jpg")
+img2 = utils.load_image("img-dog-224x224.jpg")
+
+batch1 = img1.reshape( (1, 224, 224, 3) )
+batch2 = img2.reshape( (1, 224, 224, 3) )
+
+batch = np.concatenate((batch1, batch2), 0)
+
+batch_size = 2
+images = tf.placeholder(tf.float32, [batch_size, 224, 224, 3])
+
+net = VGG_ILSVRC_16_layers({'input': batch})
+prob = net.layers['prob']
+
+with tf.Session() as sess:
+        
+    	sess.run( tf.initialize_all_variables() )
+    	net.load('vgg16.npy', sess)
+        
+        prob_value = sess.run(prob, feed_dict = {images: batch})
+        print('prob: ', prob_value)
+		
+		
